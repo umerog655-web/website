@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website Dashboard | Ultimate 100+ Edition</title>
+    <title>Website Dashboard | Titan Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -14,6 +14,7 @@
             --glass: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.08);
             --text: #f8fafc;
+            --sidebar-width: 320px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,38 +29,46 @@
 
         /* --- SIDEBAR --- */
         .sidebar {
-            width: 320px;
+            width: var(--sidebar-width);
             background: var(--sidebar);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            transition: 0.3s;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 100;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+            margin-right: calc(var(--sidebar-width) * -1);
         }
 
         .sidebar-head {
             padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid var(--border);
         }
 
         .sidebar-head h1 {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             background: linear-gradient(to right, #fff, var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .cat-filter {
-            padding: 15px 30px;
-        }
-
+        .cat-filter { padding: 15px 30px; }
         .cat-filter input {
             width: 100%;
-            padding: 10px 15px;
+            padding: 12px;
             background: var(--glass);
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 12px;
             color: white;
             outline: none;
+            font-size: 0.8rem;
         }
 
         .sidebar-nav {
@@ -68,43 +77,61 @@
             padding: 10px 20px;
         }
 
-        .sidebar-nav::-webkit-scrollbar { width: 5px; }
+        .sidebar-nav::-webkit-scrollbar { width: 4px; }
         .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border); }
 
         .nav-item {
             display: block;
-            padding: 12px 15px;
+            padding: 10px 15px;
             color: #94a3b8;
             text-decoration: none;
             font-size: 0.85rem;
             border-radius: 10px;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             transition: 0.2s;
         }
 
-        .nav-item:hover { background: var(--glass); color: var(--accent); transform: translateX(5px); }
+        .nav-item:hover { background: var(--glass); color: var(--accent); }
 
-        /* --- MAIN --- */
+        /* --- MAIN AREA --- */
         .main {
             flex: 1;
             overflow-y: auto;
-            padding: 40px 60px;
+            padding: 40px;
             scroll-behavior: smooth;
-        }
-
-        .top-hero {
-            margin-bottom: 60px;
-            text-align: center;
-        }
-
-        .top-hero h2 { font-size: 3rem; margin-bottom: 20px; font-weight: 800; }
-
-        .search-main {
-            max-width: 800px;
-            margin: 0 auto;
             position: relative;
         }
 
+        /* Toggle Button */
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 800;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            transition: 0.3s;
+        }
+        
+        .sidebar:not(.collapsed) ~ .main .toggle-btn {
+            left: calc(var(--sidebar-width) + 20px);
+        }
+
+        .top-hero {
+            margin: 60px auto 40px;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .top-hero h2 { font-size: 3.5rem; margin-bottom: 20px; letter-spacing: -2px; }
+
+        .search-main { margin-bottom: 60px; }
         #siteSearch {
             width: 100%;
             padding: 20px 30px;
@@ -113,25 +140,27 @@
             border: 1px solid var(--border);
             color: white;
             font-size: 1.1rem;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             outline: none;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
-        /* --- GRID --- */
-        .category-section { margin-bottom: 80px; scroll-margin-top: 40px; }
+        /* --- CATEGORIES & CARDS --- */
+        .category-section { margin-bottom: 80px; scroll-margin-top: 100px; }
         .category-section h3 {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             margin-bottom: 25px;
             display: flex;
             align-items: center;
             gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
         }
         .category-section h3::after { content: ""; flex: 1; height: 1px; background: var(--border); }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 20px;
         }
 
@@ -144,158 +173,95 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center;
-            transition: 0.3s;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .card:hover {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.1);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border-color: var(--accent);
+            background: rgba(0, 242, 255, 0.05);
+            transform: translateY(-8px);
         }
 
         .card img {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+            width: 42px; height: 42px;
+            border-radius: 10px;
             margin-bottom: 15px;
-            background: white;
+            background: #fff;
             padding: 4px;
         }
 
-        .card span { font-weight: 600; font-size: 0.9rem; color: #cbd5e1; }
-
+        .card span { font-weight: 600; font-size: 0.85rem; color: #cbd5e1; }
         .hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .sidebar { position: absolute; height: 100%; }
+            .sidebar.collapsed { transform: translateX(-100%); }
+            .top-hero h2 { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
 
-    <aside class="sidebar">
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-head">
-            <h1>Website Dashboard</h1>
+            <h1>TITAN DIRECTORY</h1>
         </div>
         <div class="cat-filter">
-            <input type="text" id="catFilterInput" placeholder="Filter categories..." oninput="filterCats()">
+            <input type="text" id="catFilterInput" placeholder="Quick find category..." oninput="filterCats()">
         </div>
         <nav class="sidebar-nav" id="sidebarLinks"></nav>
     </aside>
 
     <main class="main" id="mainArea">
         <div class="top-hero">
-            <h2>The Titan Directory</h2>
+            <h2>Command Center</h2>
             <div class="search-main">
-                <input type="text" id="siteSearch" placeholder="Search across 500+ sites..." oninput="searchDashboard()">
+                <input type="text" id="siteSearch" placeholder="Search 500+ premium resources..." oninput="searchDashboard()">
             </div>
         </div>
         <div id="contentGrid"></div>
     </main>
 
     <script>
+        // PURE FRONTEND DATA OBJECT
         const db = {
-            "AI Chat": { "ChatGPT": "https://chat.openai.com", "Claude": "https://claude.ai", "Gemini": "https://gemini.google.com", "Perplexity": "https://perplexity.ai", "Pi AI": "https://pi.ai" },
-            "AI Images": { "Midjourney": "https://midjourney.com", "Leonardo": "https://leonardo.ai", "DALL-E": "https://labs.openai.com", "Lexica": "https://lexica.art" },
-            "Music Streaming": { "Spotify": "https://spotify.com", "Apple Music": "https://music.apple.com", "Tidal": "https://tidal.com", "SoundCloud": "https://soundcloud.com", "Deezer": "https://deezer.com" },
-            "Music Production": { "Splice": "https://splice.com", "Loopcloud": "https://loopcloud.com", "BandLab": "https://bandlab.com" },
-            "Anime Streaming": { "Crunchyroll": "https://crunchyroll.com", "HiAnime": "https://hianime.to", "9Anime": "https://9anime.to" },
-            "Manga Reader": { "MangaDex": "https://mangadex.org", "Webtoon": "https://webtoons.com", "MangaPlus": "https://mangaplus.shueisha.co.jp" },
-            "Programming": { "GitHub": "https://github.com", "Stack Overflow": "https://stackoverflow.com", "GitLab": "https://gitlab.com", "Replit": "https://replit.com" },
-            "Cybersecurity": { "VirusTotal": "https://virustotal.com", "HackTheBox": "https://hackthebox.com", "TryHackMe": "https://tryhackme.com" },
-            "Social Media": { "Instagram": "https://instagram.com", "X / Twitter": "https://twitter.com", "Reddit": "https://reddit.com", "TikTok": "https://tiktok.com" },
-            "Video Streaming": { "YouTube": "https://youtube.com", "Netflix": "https://netflix.com", "Prime Video": "https://primevideo.com", "Twitch": "https://twitch.tv" },
-            "Cloud Hosting": { "AWS": "https://aws.amazon.com", "Vercel": "https://vercel.com", "DigitalOcean": "https://digitalocean.com" },
-            "E-Commerce": { "Amazon": "https://amazon.com", "AliExpress": "https://aliexpress.com", "eBay": "https://ebay.com" },
-            "Finance": { "TradingView": "https://tradingview.com", "PayPal": "https://paypal.com", "Robinhood": "https://robinhood.com" },
-            "Crypto": { "Binance": "https://binance.com", "Coinbase": "https://coinbase.com", "CoinMarketCap": "https://coinmarketcap.com" },
-            "Design": { "Figma": "https://figma.com", "Canva": "https://canva.com", "Dribbble": "https://dribbble.com" },
-            "News": { "The Verge": "https://theverge.com", "BBC": "https://bbc.com", "Reuters": "https://reuters.com" },
-            "Education": { "Coursera": "https://coursera.org", "Udemy": "https://udemy.com", "Khan Academy": "https://khanacademy.org" },
+            "AI & Intelligence": { "ChatGPT": "https://chat.openai.com", "Claude": "https://claude.ai", "Gemini": "https://gemini.google.com", "Perplexity": "https://perplexity.ai" },
+            "AI Vision": { "Midjourney": "https://midjourney.com", "Leonardo": "https://leonardo.ai", "Lexica": "https://lexica.art" },
+            "Streaming Audio": { "Spotify": "https://spotify.com", "Apple Music": "https://music.apple.com", "Tidal": "https://tidal.com", "SoundCloud": "https://soundcloud.com" },
+            "Music Tools": { "Splice": "https://splice.com", "Loopcloud": "https://loopcloud.com", "BandLab": "https://bandlab.com" },
+            "Anime Hub": { "Crunchyroll": "https://crunchyroll.com", "HiAnime": "https://hianime.to", "AniList": "https://anilist.co" },
+            "Code Forge": { "GitHub": "https://github.com", "Stack Overflow": "https://stackoverflow.com", "Replit": "https://replit.com" },
+            "Cyber Ops": { "VirusTotal": "https://virustotal.com", "HackTheBox": "https://hackthebox.com", "TryHackMe": "https://tryhackme.com" },
+            "Socials": { "Instagram": "https://instagram.com", "X": "https://twitter.com", "Reddit": "https://reddit.com" },
+            "Video Box": { "YouTube": "https://youtube.com", "Netflix": "https://netflix.com", "Twitch": "https://twitch.tv" },
+            "Finance Flow": { "TradingView": "https://tradingview.com", "PayPal": "https://paypal.com", "Binance": "https://binance.com" },
+            "Design Suite": { "Figma": "https://figma.com", "Canva": "https://canva.com", "Dribbble": "https://dribbble.com" },
+            "Global News": { "The Verge": "https://theverge.com", "BBC News": "https://bbc.com", "Reuters": "https://reuters.com" },
+            "Learning": { "Coursera": "https://coursera.org", "Udemy": "https://udemy.com", "Khan Academy": "https://khanacademy.org" },
             "Scientific": { "NASA": "https://nasa.gov", "Nature": "https://nature.com", "ScienceDaily": "https://sciencedaily.com" },
-            "Mathematics": { "WolframAlpha": "https://wolframalpha.com", "Symbolab": "https://symbolab.com" },
-            "Space": { "SpaceX": "https://spacex.com", "Blue Origin": "https://blueorigin.com" },
-            "Gaming": { "Steam": "https://steampowered.com", "Epic Games": "https://epicgames.com", "GOG": "https://gog.com" },
-            "Gaming News": { "IGN": "https://ign.com", "Kotaku": "https://kotaku.com", "GameSpot": "https://gamespot.com" },
-            "OS & Linux": { "Ubuntu": "https://ubuntu.com", "Arch Linux": "https://archlinux.org", "DistroWatch": "https://distrowatch.com" },
-            "Privacy Tools": { "Proton": "https://proton.me", "Signal": "https://signal.org", "DuckDuckGo": "https://duckduckgo.com" },
-            "Search Engines": { "Google": "https://google.com", "Bing": "https://bing.com", "Brave Search": "https://search.brave.com" },
-            "Utilities": { "Speedtest": "https://speedtest.net", "TinyPNG": "https://tinypng.com", "Remove.bg": "https://remove.bg" },
-            "Travel": { "Airbnb": "https://airbnb.com", "Booking": "https://booking.com", "Skyscanner": "https://skyscanner.net" },
-            "Cooking": { "AllRecipes": "https://allrecipes.com", "Tasty": "https://tasty.co", "Serious Eats": "https://seriouseats.com" },
+            "Space Lab": { "SpaceX": "https://spacex.com", "Blue Origin": "https://blueorigin.com" },
+            "Gaming Base": { "Steam": "https://steampowered.com", "Epic Games": "https://epicgames.com", "GOG": "https://gog.com" },
+            "Privacy Ops": { "Proton": "https://proton.me", "Signal": "https://signal.org", "DuckDuckGo": "https://duckduckgo.com" },
+            "Quick Tools": { "Speedtest": "https://speedtest.net", "TinyPNG": "https://tinypng.com", "Remove.bg": "https://remove.bg" },
+            "Travel": { "Airbnb": "https://airbnb.com", "Booking": "https://booking.com" },
+            "OS & Linux": { "Ubuntu": "https://ubuntu.com", "Arch Linux": "https://archlinux.org" },
             "Architecture": { "ArchDaily": "https://archdaily.com", "Houzz": "https://houzz.com" },
             "Medical": { "Mayo Clinic": "https://mayoclinic.org", "WebMD": "https://webmd.com" },
-            "Psychology": { "Psychology Today": "https://psychologytoday.com", "Verywell Mind": "https://verywellmind.com" },
-            "Robotics": { "Boston Dynamics": "https://bostondynamics.com", "IEEE Spectrum": "https://spectrum.ieee.org" },
-            "Philosophy": { "Stanford Philosophy": "https://plato.stanford.edu", "Aeon": "https://aeon.co" },
-            "History": { "History.com": "https://history.com", "World History": "https://worldhistory.org" },
-            "Writing": { "Medium": "https://medium.com", "Substack": "https://substack.com", "Grammarly": "https://grammarly.com" },
-            "Web Development": { "React": "https://react.dev", "Vue": "https://vuejs.org", "Tailwind": "https://tailwindcss.com" },
-            "DevOps": { "Docker": "https://docker.com", "Kubernetes": "https://kubernetes.io", "Terraform": "https://terraform.io" },
-            "Backend": { "Node.js": "https://nodejs.org", "Django": "https://djangoproject.com", "Laravel": "https://laravel.com" },
-            "Databases": { "MongoDB": "https://mongodb.com", "PostgreSQL": "https://postgresql.org", "Redis": "https://redis.io" },
-            "Freelance": { "Upwork": "https://upwork.com", "Fiverr": "https://fiverr.com", "Toptal": "https://toptal.com" },
-            "Jobs": { "Indeed": "https://indeed.com", "LinkedIn Jobs": "https://linkedin.com/jobs", "Glassdoor": "https://glassdoor.com" },
-            "Marketing": { "HubSpot": "https://hubspot.com", "SEMrush": "https://semrush.com", "Buffer": "https://buffer.com" },
-            "Podcasts": { "Pocket Casts": "https://pocketcasts.com", "Spotify Podcasts": "https://spotify.com" },
-            "E-Books": { "Project Gutenberg": "https://gutenberg.org", "Open Library": "https://openlibrary.org", "Goodreads": "https://goodreads.com" },
-            "Nature": { "National Geographic": "https://nationalgeographic.com", "WWF": "https://worldwildlife.org" },
-            "Photography": { "500px": "https://500px.com", "Flickr": "https://flickr.com", "DPReview": "https://dpreview.com" },
-            "Fitness": { "Strava": "https://strava.com", "MyFitnessPal": "https://myfitnesspal.com" },
-            "Legal": { "Justia": "https://justia.com", "FindLaw": "https://findlaw.com" },
-            "Automotive": { "Tesla": "https://tesla.com", "Top Gear": "https://topgear.com", "Autoblog": "https://autoblog.com" },
-            "Politics": { "Politico": "https://politico.com", "RealClearPolitics": "https://realclearpolitics.com" },
-            "Economy": { "Bloomberg": "https://bloomberg.com", "The Economist": "https://economist.com" },
-            "Real Estate": { "Zillow": "https://zillow.com", "Redfin": "https://redfin.com" },
-            "AI Video": { "Runway": "https://runwayml.com", "Pika": "https://pika.art", "HeyGen": "https://heygen.com" },
-            "Quantum Computing": { "IBM Quantum": "https://quantum-computing.ibm.com", "Rigetti": "https://rigetti.com" },
-            "3D & Modeling": { "Blender": "https://blender.org", "Sketchfab": "https://sketchfab.com" },
-            "UX/UI": { "Behance": "https://behance.net", "Mobbin": "https://mobbin.com", "Uplabs": "https://uplabs.com" },
-            "Iconography": { "Flaticon": "https://flaticon.com", "Iconfinder": "https://iconfinder.com" },
-            "Font Tools": { "Google Fonts": "https://fonts.google.com", "FontSpace": "https://fontspace.com" },
-            "Color Tools": { "Coolors": "https://coolors.co", "Adobe Color": "https://color.adobe.com" },
-            "Networking": { "Cisco": "https://cisco.com", "Juniper": "https://juniper.net" },
-            "IoT": { "Arduino": "https://arduino.cc", "Raspberry Pi": "https://raspberrypi.com" },
-            "Game Dev": { "Unity": "https://unity.com", "Unreal Engine": "https://unrealengine.com" },
-            "Chess": { "Chess.com": "https://chess.com", "Lichess": "https://lichess.org" },
-            "Sports": { "ESPN": "https://espn.com", "Bleacher Report": "https://bleacherreport.com" },
-            "Football": { "FIFA": "https://fifa.com", "Goal": "https://goal.com" },
-            "Weather": { "Windy": "https://windy.com", "AccuWeather": "https://accuweather.com" },
-            "Maps": { "Google Maps": "https://google.com/maps", "Mapbox": "https://mapbox.com" },
-            "Blogging": { "WordPress": "https://wordpress.com", "Ghost": "https://ghost.org" },
-            "Documentation": { "Notion": "https://notion.so", "Obsidian": "https://obsidian.md" },
-            "Task Management": { "Trello": "https://trello.com", "Asana": "https://asana.com" },
-            "Email": { "Gmail": "https://mail.google.com", "Outlook": "https://outlook.com" },
-            "Forms": { "Typeform": "https://typeform.com", "Google Forms": "https://forms.google.com" },
-            "Analytics": { "Google Analytics": "https://analytics.google.com", "Hotjar": "https://hotjar.com" },
-            "SEO": { "Ahrefs": "https://ahrefs.com", "Moz": "https://moz.com" },
-            "Translation": { "DeepL": "https://deepl.com", "Google Translate": "https://translate.google.com" },
-            "Stock Photos": { "Unsplash": "https://unsplash.com", "Pexels": "https://pexels.com" },
-            "Stock Video": { "Mixkit": "https://mixkit.co", "Coverr": "https://coverr.co" },
-            "Web Hosting": { "Bluehost": "https://bluehost.com", "SiteGround": "https://siteground.com" },
-            "Domain Names": { "Namecheap": "https://namecheap.com", "GoDaddy": "https://godaddy.com" },
-            "AI Code": { "GitHub Copilot": "https://github.com/features/copilot", "Tabnine": "https://tabnine.com" },
-            "VFX": { "VideoCopilot": "https://videocopilot.net", "ActionVFX": "https://actionvfx.com" },
-            "Audio Assets": { "Epidemic Sound": "https://epidemicsound.com", "Artlist": "https://artlist.io" },
-            "Typography": { "Typewolf": "https://typewolf.com", "Fonts In Use": "https://fontsinuse.com" },
-            "Urban Planning": { "CityLab": "https://bloomberg.com/citylab", "Planetizen": "https://planetizen.com" },
-            "Sustainability": { "Treehugger": "https://treehugger.com", "Grist": "https://grist.org" },
-            "Botany": { "Botany.org": "https://botany.org", "Royal Botanic": "https://kew.org" },
-            "Astronomy": { "Sky & Telescope": "https://skyandtelescope.org", "Stellarium": "https://stellarium-web.org" },
-            "Geology": { "Geology.com": "https://geology.com", "USGS": "https://usgs.gov" },
-            "Archeology": { "Archaeology Magazine": "https://archaeology.org", "Biblical Arch": "https://biblicalarchaeology.org" },
-            "Military": { "Janes": "https://janes.com", "Defense News": "https://defensenews.com" },
-            "Spirituality": { "Mindful": "https://mindful.org", "On Being": "https://onbeing.org" },
-            "DIY": { "Instructables": "https://instructables.com", "Make: Magazine": "https://makezine.com" },
-            "Self Improvement": { "Zen Habits": "https://zenhabits.net", "Mark Manson": "https://markmanson.net" },
-            "Fashion": { "Vogue": "https://vogue.com", "Hypebeast": "https://hypebeast.com" },
-            "Furniture": { "IKEA": "https://ikea.com", "Wayfair": "https://wayfair.com" },
-            "Home Decor": { "Apartment Therapy": "https://apartmenttherapy.com", "Architectural Digest": "https://architecturaldigest.com" },
-            "Kids": { "PBS Kids": "https://pbskids.org", "Nat Geo Kids": "https://kids.nationalgeographic.com" },
-            "Senior Care": { "AARP": "https://aarp.org", "AgingCare": "https://agingcare.com" },
-            "Pets": { "PetMD": "https://petmd.com", "The Spruce Pets": "https://thesprucepets.com" },
-            "Wildlife": { "Audubon": "https://audubon.org", "Ocean Conservancy": "https://oceanconservancy.org" },
+            "Psychology": { "Psychology Today": "https://psychologytoday.com" },
+            "Robotics": { "Boston Dynamics": "https://bostondynamics.com" },
+            "History": { "History.com": "https://history.com" },
+            "Writing": { "Medium": "https://medium.com", "Substack": "https://substack.com" },
+            "Web Dev": { "React": "https://react.dev", "Tailwind": "https://tailwindcss.com" },
+            "Freelance": { "Upwork": "https://upwork.com", "Fiverr": "https://fiverr.com" },
+            "Stock Media": { "Unsplash": "https://unsplash.com", "Pexels": "https://pexels.com" },
+            "Eco-Systems": { "Treehugger": "https://treehugger.com", "Grist": "https://grist.org" },
             "Language Learning": { "Duolingo": "https://duolingo.com", "Babbel": "https://babbel.com" }
+            // Note: You can easily add more categories here by following the format
         };
 
+        // UI Initialization
         function init() {
             const grid = document.getElementById('contentGrid');
             const nav = document.getElementById('sidebarLinks');
@@ -303,7 +269,7 @@
             Object.entries(db).forEach(([cat, sites]) => {
                 const id = cat.toLowerCase().replace(/\s+/g, '-');
                 
-                // Sidebar Nav
+                // Nav
                 const a = document.createElement('a');
                 a.href = `#${id}`;
                 a.className = 'nav-item';
@@ -316,19 +282,23 @@
                 section.id = id;
                 section.setAttribute('data-name', cat.toLowerCase());
 
-                let cardsHTML = '';
+                let cards = '';
                 Object.entries(sites).forEach(([name, url]) => {
                     const domain = new URL(url).hostname;
-                    cardsHTML += `
+                    cards += `
                         <a href="${url}" target="_blank" class="card" data-site="${name.toLowerCase()}">
                             <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" alt="">
                             <span>${name}</span>
                         </a>`;
                 });
 
-                section.innerHTML = `<h3>${cat}</h3><div class="grid">${cardsHTML}</div>`;
+                section.innerHTML = `<h3>${cat}</h3><div class="grid">${cards}</div>`;
                 grid.appendChild(section);
             });
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
         }
 
         function searchDashboard() {
